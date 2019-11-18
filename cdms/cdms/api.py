@@ -181,7 +181,7 @@ JOIN `tabCompany` comp ON se.company = comp.`name`
 LEFT JOIN `tabSupplier` sup ON se.`bc_supplier` = sup.`supplier_name`
 WHERE se.docstatus != 2 AND se.purpose = 'Material Receipt') as cs 
 where cs.modified >= %s and cs.modified < %s
-order by cs.`name`
+order by cs.`ExternalId`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
