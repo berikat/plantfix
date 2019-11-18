@@ -11,6 +11,7 @@ def get_item(from_date=None, to_date=None, limit_start=None, limit_page_length=N
     datalist = frappe.db.sql("""SELECT `item_code`, `item_name`, `item_group`, `weight_per_unit`
 , `country_of_origin`, `stock_uom`, `is_fixed_asset` 
 FROM tabItem a WHERE `docstatus` != 2 and a.modified >= %s and a.modified < %s
+order by a.`name`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
@@ -22,6 +23,7 @@ def get_uom(from_date=None, to_date=None, limit_start=None, limit_page_length=No
         limit_start = 0 
     datalist = frappe.db.sql("""SELECT a.`name` 
 FROM `tabUOM` a WHERE `docstatus` != 2 and a.modified >= %s and a.modified < %s
+order by a.`name`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
@@ -69,6 +71,7 @@ SELECT s.`supplier_name` as `name`
   ) AS country
 FROM tabSupplier s) as cs 
 where cs.modified >= %s and cs.modified < %s
+order by cs.`name`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
@@ -104,6 +107,7 @@ FROM `tabSupplier` a
 JOIN `tabDynamic Link` b ON b.link_doctype = 'Supplier' AND b.link_name = a.`name` AND b.parenttype = 'Address'
 JOIN `tabAddress` c ON c.`name` = b.parent) as cs 
 where cs.modified >= %s and cs.modified < %s
+order by cs.`name`, cs.address_title
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
@@ -177,6 +181,7 @@ JOIN `tabCompany` comp ON se.company = comp.`name`
 LEFT JOIN `tabSupplier` sup ON se.`bc_supplier` = sup.`supplier_name`
 WHERE se.docstatus != 2 AND se.purpose = 'Material Receipt') as cs 
 where cs.modified >= %s and cs.modified < %s
+order by cs.`name`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
@@ -198,6 +203,7 @@ def get_bom(from_date=None, to_date=None, limit_start=None, limit_page_length=No
 from `tabBOM` a
 inner join `tabBOM Item` b on a.name = b.parent
 where a.docstatus = 1 and a.modified >= %s and a.modified < %s
+order by a.`name`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
@@ -215,6 +221,7 @@ def get_bom_scrap(from_date=None, to_date=None, limit_start=None, limit_page_len
 from `tabBOM` a
 inner join `tabBOM Scrap Item` b on a.name = b.parent
 where a.docstatus = 1 and a.modified >= %s and a.modified < %s
+order by a.`name`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
@@ -234,13 +241,14 @@ a.`name` transaction_id
 , coalesce(b.to_warehouse, a.warehouse) to_warehouse
 , a.item_code
 , a.stock_uom uom_code
-, a.actual_qty quantity
-, a.actual_qty * a.valuation_rate cost
+, case when a.actual_qty = 0 then a.qty_after_transaction else a.actual_qty end quantity
+, (case when a.actual_qty = 0 then a.qty_after_transaction else a.actual_qty end) * a.valuation_rate cost
 , a.creation
 , a.modified
 FROM `tabStock Ledger Entry` a
 LEFT JOIN `tabStock Entry` b ON a.voucher_no = b.`name` AND a.voucher_type = 'Stock Entry'
 WHERE a.docstatus != 2 and a.modified >= %s and a.modified < %s
+order by a.`name`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
@@ -270,6 +278,7 @@ FROM `tabSales Invoice` a
 JOIN `tabSales Invoice Item` b ON a.`name` = b.`parent` AND b.`parenttype` = 'Sales Invoice'
 JOIN `tabCustomer` c ON a.title = c.`name`
 WHERE a.docstatus != 2 and a.modified >= %s and a.modified < %s
+order by a.`name`, b.`name`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
@@ -283,6 +292,7 @@ def get_warehouse(from_date=None, to_date=None, limit_start=None, limit_page_len
 , warehouse_name as `Description`
 , type as `Type`
 from tabWarehouse
+order by `name`
 limit %s,%s""", (int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
