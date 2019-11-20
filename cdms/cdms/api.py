@@ -274,6 +274,7 @@ concat(a.`name`,'-',b.`name`) id
 , a.currency
 , b.total_weight net_weight
 , a.modified
+, a.remark_sales_invoice
 FROM `tabSales Invoice` a
 JOIN `tabSales Invoice Item` b ON a.`name` = b.`parent` AND b.`parenttype` = 'Sales Invoice'
 JOIN `tabCustomer` c ON a.title = c.`name`
