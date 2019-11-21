@@ -38,7 +38,7 @@ def get_customer_supplier(from_date=None, to_date=None, limit_start=None, limit_
 , c.`tax_id`
 , c.`facility_number`
 , c.`facility_date`
-, c.`name` as `code`
+, c.`code` as `code`
 , c.`default_currency`
 , c.modified
 , (
@@ -57,7 +57,7 @@ SELECT s.`supplier_name` as `name`
 , s.`tax_id`
 , s.`facility_number`
 , s.`facility_date`
-, s.`name` as `code`
+, s.`code` as `code`
 , s.`default_currency`
 , s.modified
 , (
