@@ -123,8 +123,8 @@ def get_receiving(from_date=None, to_date=None, limit_start=None, limit_page_len
 , pr.`supplier` AS `SupplierName`
 , pr.posting_date AS `ReceiptDate`
 , pr.`name` AS `ReceiptNumber`
-, pri.item_name AS `Code`
-, pri.description AS `Description`
+, pri.item_code AS `Code`
+, pri.item_name AS `Description`
 , pri.stock_qty AS `Quantity`
 , pri.stock_uom AS `Uom`
 , pri.received_qty AS `QuantityInput`
