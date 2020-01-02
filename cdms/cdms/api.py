@@ -198,7 +198,7 @@ def get_bom(from_date=None, to_date=None, limit_start=None, limit_page_length=No
     , b.item_code as MaterialCode
     , b.bom_no as MaterialBomCode
     , b.qty_consumed_per_unit as Quantity
-    , b.stock_uom as UomName
+    , b.uom as UomName
     , a.remark Remark
 from `tabBOM` a
 inner join `tabBOM Item` b on a.name = b.parent
