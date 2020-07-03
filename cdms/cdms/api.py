@@ -285,6 +285,39 @@ order by a.`name`, b.`name`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
+    
+@frappe.whitelist()
+def get_purchaseorder(from_date=None, to_date=None, limit_start=None, limit_page_length=None):
+    if not limit_page_length:
+        limit_page_length = 20
+    if not limit_start:
+        limit_start = 0 
+    datalist = frappe.db.sql("""SELECT 
+concat(a.`name`,'-',b.`name`) id   
+, a.`name` po_number
+, a.company
+, a.schedule_date po_date
+, a.title account_name
+, c.`code` account_code
+, b.item_code
+, b.item_name   
+, b.qty
+, b.uom
+, b.rate unit_price
+, b.amount
+, a.currency
+, b.total_weight net_weight
+, a.modified
+, a.docstatus
+, b.bom
+FROM `tabPurchase Order` a
+JOIN `tabPurchase Order Item` b ON a.`name` = b.`parent` AND b.`parenttype` = 'Purchase Order'
+JOIN `tabSupplier` c ON a.title = c.`name`
+WHERE a.modified >= %s and a.modified < %s
+order by a.`name`, b.`name`
+limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
+    return get_response(datalist)
+
 @frappe.whitelist()
 def get_warehouse(from_date=None, to_date=None, limit_start=None, limit_page_length=None):
     if not limit_page_length:
