@@ -186,6 +186,78 @@ limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), 
     return get_response(datalist)
 
 @frappe.whitelist()
+def get_outgoing(from_date=None, to_date=None, limit_start=None, limit_page_length=None):
+    if not limit_page_length:
+        limit_page_length = 20
+    if not limit_start:
+        limit_start = 0 
+    datalist = frappe.db.sql("""select * from (SELECT dn.company AS `Company`
+, dn.`name` AS `ExternalId`
+, cus.`code` AS `CustomerCode`
+, dn.`customer` AS `CustomerName`
+, dn.posting_date AS `OutgoingDate`
+, dn.`name` AS `OutgoingNumber`
+, dni.item_code AS `Code`
+, dni.item_name AS `Description`
+, dni.stock_qty AS `Quantity`
+, dni.stock_uom AS `Uom`
+, dni.uom AS `UomInput`
+, dn.currency AS `Currency`
+, dni.rate AS `UnitPrice`
+, dni.amount AS `Amount`
+, dni.base_amount AS `BaseAmount`
+, dn.`type_of_customs_document` AS `BcType`
+, dn.`number_of_customs_document` AS `BcNumber`
+, dn.`date_of_customs_document` AS `BcDate`
+, dn.`total` AS `TotalAmount`
+, dn.`base_total` AS `TotalBaseAmount`
+, dn.`total_taxes_and_charges` AS `TotalTaxAmount`
+, dn.`base_total_taxes_and_charges` AS `TotalBaseTaxAmount`
+, inv.`name` AS `InvoiceNo`
+, inv.`posting_date` AS `InvoiceDate`
+, case when dni.modified > dn.modified then dni.modified else dn.modified end modified
+FROM `tabDelivery Note` dn
+JOIN `tabDelivery Note Item` dni ON dn.`name` = dni.`parent` and dni.`parenttype` = 'Delivery Note'
+JOIN `tabCustomer` cus ON dn.`customer_name` = cus.`name`
+LEFT JOIN `tabSales Invoice Item` invi ON dn.`name` = invi.`delivery_note` AND invi.`parenttype` = 'Sales Invoice'
+LEFT JOIN `tabSales Invoice` inv ON invi.`parent` = inv.`name`
+UNION	
+SELECT se.company AS `Company`
+, se.`name` AS `ExternalId`
+, cus .`code` AS `CustomerCode`
+, se.`bc_customer` AS `CustomerName`
+, se.posting_date AS `OutgoingDate`
+, se.`name` AS `OutgoingNumber`
+, sei.item_code AS `Code`
+, sei.description AS `Description`
+, sei.transfer_qty AS `Quantity`
+, sei.stock_uom AS `Uom`
+, sei.uom AS `UomInput`
+, comp.default_currency AS `Currency`
+, sei.valuation_rate AS `UnitPrice`
+, sei.amount AS `Amount`
+, sei.amount AS `BaseAmount`
+, se.`bc_type` AS `BcType`
+, se.`bc_number` AS `BcNumber`
+, se.`bc_date` AS `BcDate`
+, se.`total_amount` AS `TotalAmount`
+, se.`total_amount` AS `TotalBaseAmount`
+, 0 AS `TotalTaxAmount`
+, 0 AS `TotalBaseTaxAmount`
+, NULL AS `InvoiceNo`
+, NULL AS `InvoiceDate` 
+, case when sei.modified > se.modified then sei.modified else se.modified end modified
+FROM `tabStock Entry` se
+JOIN `tabStock Entry Detail` sei ON se.`name` = sei.`parent` and sei.parenttype = 'Stock Entry'
+JOIN `tabCompany` comp ON se.company = comp.`name`
+LEFT JOIN `tabCustomer` cus ON se.`bc_customer` = cus.`customer_name`
+WHERE se.docstatus != 2 AND se.purpose = 'Material Issue') as cs 
+where cs.modified >= %s and cs.modified < %s
+    order by cs.`ExternalId`
+limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
+    return get_response(datalist)
+
+@frappe.whitelist()
 def get_bom(from_date=None, to_date=None, limit_start=None, limit_page_length=None):
     if not limit_page_length:
         limit_page_length = 20
