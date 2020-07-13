@@ -204,15 +204,10 @@ def get_outgoing(from_date=None, to_date=None, limit_start=None, limit_page_leng
 , dni.uom AS `UomInput`
 , dn.currency AS `Currency`
 , dni.rate AS `UnitPrice`
-, dni.amount AS `Amount`
-, dni.base_amount AS `BaseAmount`
+, dn.base_grand_total AS `Amount`
 , dn.`type_of_customs_document` AS `BcType`
 , dn.`number_of_customs_document` AS `BcNumber`
 , dn.`date_of_customs_document` AS `BcDate`
-, dn.`total` AS `TotalAmount`
-, dn.`base_total` AS `TotalBaseAmount`
-, dn.`total_taxes_and_charges` AS `TotalTaxAmount`
-, dn.`base_total_taxes_and_charges` AS `TotalBaseTaxAmount`
 , inv.`name` AS `InvoiceNo`
 , inv.`posting_date` AS `InvoiceDate`
 , case when dni.modified > dn.modified then dni.modified else dn.modified end modified
@@ -236,14 +231,9 @@ SELECT se.company AS `Company`
 , comp.default_currency AS `Currency`
 , sei.valuation_rate AS `UnitPrice`
 , sei.amount AS `Amount`
-, sei.amount AS `BaseAmount`
 , se.`bc_type` AS `BcType`
 , se.`bc_number` AS `BcNumber`
 , se.`bc_date` AS `BcDate`
-, se.`total_amount` AS `TotalAmount`
-, se.`total_amount` AS `TotalBaseAmount`
-, 0 AS `TotalTaxAmount`
-, 0 AS `TotalBaseTaxAmount`
 , NULL AS `InvoiceNo`
 , NULL AS `InvoiceDate` 
 , case when sei.modified > se.modified then sei.modified else se.modified end modified
