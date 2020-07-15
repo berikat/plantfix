@@ -191,7 +191,7 @@ def get_outgoing(from_date=None, to_date=None, limit_start=None, limit_page_leng
         limit_page_length = 20
     if not limit_start:
         limit_start = 0 
-    datalist = frappe.db.sql("""select * from (SELECT dn.company AS `Company`
+    datalist = frappe.db.sql("""select dn.company AS `Company`
 , dn.`name` AS `ExternalId`
 , cus.`code` AS `CustomerCode`
 , dn.`customer` AS `CustomerName`
@@ -217,7 +217,7 @@ JOIN `tabCustomer` cus ON dn.`customer_name` = cus.`name`
 LEFT JOIN `tabSales Invoice Item` invi ON dn.`name` = invi.`delivery_note` AND invi.`parenttype` = 'Sales Invoice'
 LEFT JOIN `tabSales Invoice` inv ON invi.`parent` = inv.`name`
 where dn.modified >= %s and dn.modified < %s
-    order by cs.`ExternalId`
+    order by dn.`ExternalId`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
 
