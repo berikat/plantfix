@@ -216,33 +216,7 @@ JOIN `tabDelivery Note Item` dni ON dn.`name` = dni.`parent` and dni.`parenttype
 JOIN `tabCustomer` cus ON dn.`customer_name` = cus.`name`
 LEFT JOIN `tabSales Invoice Item` invi ON dn.`name` = invi.`delivery_note` AND invi.`parenttype` = 'Sales Invoice'
 LEFT JOIN `tabSales Invoice` inv ON invi.`parent` = inv.`name`
-UNION	
-SELECT se.company AS `Company`
-, se.`name` AS `ExternalId`
-, cus .`code` AS `CustomerCode`
-, se.`bc_customer` AS `CustomerName`
-, se.posting_date AS `OutgoingDate`
-, se.`name` AS `OutgoingNumber`
-, sei.item_code AS `Code`
-, sei.description AS `Description`
-, sei.transfer_qty AS `Quantity`
-, sei.stock_uom AS `Uom`
-, sei.uom AS `UomInput`
-, comp.default_currency AS `Currency`
-, sei.valuation_rate AS `UnitPrice`
-, sei.amount AS `Amount`
-, se.`bc_type` AS `BcType`
-, se.`bc_number` AS `BcNumber`
-, se.`bc_date` AS `BcDate`
-, NULL AS `InvoiceNo`
-, NULL AS `InvoiceDate` 
-, case when sei.modified > se.modified then sei.modified else se.modified end modified
-FROM `tabStock Entry` se
-JOIN `tabStock Entry Detail` sei ON se.`name` = sei.`parent` and sei.parenttype = 'Stock Entry'
-JOIN `tabCompany` comp ON se.company = comp.`name`
-LEFT JOIN `tabCustomer` cus ON se.`bc_customer` = cus.`customer_name`
-WHERE se.docstatus != 2 AND se.purpose = 'Material Issue') as cs 
-where cs.modified >= %s and cs.modified < %s
+where dn.modified >= %s and dn.modified < %s
     order by cs.`ExternalId`
 limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
     return get_response(datalist)
