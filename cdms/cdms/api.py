@@ -186,6 +186,42 @@ limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), 
     return get_response(datalist)
 
 @frappe.whitelist()
+def get_outgoing(from_date=None, to_date=None, limit_start=None, limit_page_length=None):
+    if not limit_page_length:
+        limit_page_length = 20
+    if not limit_start:
+        limit_start = 0 
+    datalist = frappe.db.sql("""select dn.company AS `Company`
+, dn.`name` AS `ExternalId`
+, cus.`code` AS `CustomerCode`
+, dn.`customer` AS `CustomerName`
+, dn.posting_date AS `OutgoingDate`
+, dn.`name` AS `OutgoingNumber`
+, dni.item_code AS `Code`
+, dni.item_name AS `Description`
+, dni.stock_qty AS `Quantity`
+, dni.stock_uom AS `Uom`
+, dni.uom AS `UomInput`
+, dn.currency AS `Currency`
+, dni.rate AS `UnitPrice`
+, dn.base_grand_total AS `Amount`
+, dn.`type_of_customs_document` AS `BcType`
+, dn.`number_of_customs_document` AS `BcNumber`
+, dn.`date_of_customs_document` AS `BcDate`
+, inv.`name` AS `InvoiceNo`
+, inv.`posting_date` AS `InvoiceDate`
+, case when dni.modified > dn.modified then dni.modified else dn.modified end modified
+FROM `tabDelivery Note` dn
+JOIN `tabDelivery Note Item` dni ON dn.`name` = dni.`parent` and dni.`parenttype` = 'Delivery Note'
+JOIN `tabCustomer` cus ON dn.`customer_name` = cus.`name`
+LEFT JOIN `tabSales Invoice Item` invi ON dn.`name` = invi.`delivery_note` AND invi.`parenttype` = 'Sales Invoice'
+LEFT JOIN `tabSales Invoice` inv ON invi.`parent` = inv.`name`
+where dn.modified >= %s and dn.modified < %s
+    order by dn.`ExternalId`
+limit %s,%s""", (from_date, to_date, int(limit_start), int(limit_page_length)), as_dict=True)
+    return get_response(datalist)
+
+@frappe.whitelist()
 def get_bom(from_date=None, to_date=None, limit_start=None, limit_page_length=None):
     if not limit_page_length:
         limit_page_length = 20
