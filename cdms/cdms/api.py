@@ -38,7 +38,7 @@ def get_customer_supplier(from_date=None, to_date=None, limit_start=None, limit_
 , c.`tax_id`
 , c.`facility_number`
 , c.`facility_date`
-, c.`code` as `code`
+, c.`name` as `code`
 , c.`default_currency`
 , c.modified
 , (
@@ -57,7 +57,7 @@ SELECT s.`supplier_name` as `name`
 , s.`tax_id`
 , s.`facility_number`
 , s.`facility_date`
-, s.`code` as `code`
+, s.`name` as `code`
 , s.`default_currency`
 , s.modified
 , (
@@ -119,7 +119,7 @@ def get_receiving(from_date=None, to_date=None, limit_start=None, limit_page_len
         limit_start = 0 
     datalist = frappe.db.sql("""select * from (SELECT pr.company AS `Company`
 , pr.`name` AS `ExternalId`
-, sup.`code` AS `SupplierCode`
+, sup.`name` AS `SupplierCode`
 , pr.`supplier` AS `SupplierName`
 , pr.posting_date AS `ReceiptDate`
 , pr.`name` AS `ReceiptNumber`
@@ -151,7 +151,7 @@ LEFT JOIN `tabPurchase Invoice` inv ON invi.`parent` = inv.`name`
 UNION	
 SELECT se.company AS `Company`
 , se.`name` AS `ExternalId`
-, sup.`code` AS `SupplierCode`
+, sup.`name` AS `SupplierCode`
 , se.`bc_supplier` AS `SupplierName`
 , se.posting_date AS `ReceiptDate`
 , se.`name` AS `ReceiptNumber`
@@ -264,7 +264,7 @@ concat(a.`name`,'-',b.`name`) id
 , a.company
 , a.posting_date invoice_date
 , a.title account_name
-, c.`code` account_code
+, c.`name` account_code
 , b.item_code
 , b.item_name
 , b.qty
