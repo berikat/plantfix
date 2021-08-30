@@ -193,7 +193,7 @@ def get_outgoing(from_date=None, to_date=None, limit_start=None, limit_page_leng
         limit_start = 0 
     datalist = frappe.db.sql("""select dn.company AS `Company`
 , dn.`name` AS `ExternalId`
-, cus.`name` AS `CustomerCode`
+, cus.`code` AS `CustomerCode`
 , dn.`customer` AS `CustomerName`
 , dn.posting_date AS `OutgoingDate`
 , dn.`name` AS `OutgoingNumber`
@@ -334,7 +334,7 @@ concat(a.`name`,'-',b.`name`) id
 , a.company
 , a.schedule_date po_date
 , a.title account_name
-, c.`name` account_code
+, c.`code` account_code
 , b.item_code
 , b.item_name   
 , b.qty
